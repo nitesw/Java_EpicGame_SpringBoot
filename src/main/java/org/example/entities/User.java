@@ -22,6 +22,6 @@ public class User {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String password_hash;
 
-    @Column(nullable = false, columnDefinition = "DATE DEFAULT CURRENT_DATE")
-    private LocalDate created_at = LocalDate.now();
+    @Column(nullable = false)
+    private LocalDate created_at;
 }

@@ -1,12 +1,13 @@
 package org.example.controller;
 
+import org.example.dto.genre.CreateGenreDto;
+import org.example.dto.genre.EditGenreDto;
 import org.example.entities.Genre;
-import org.example.repository.IGenreRepository;
+import org.example.service.GenreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -14,16 +15,16 @@ import java.util.List;
 @RequestMapping("/api/genres")
 public class GenreController {
     @Autowired
-    private IGenreRepository repository;
+    private GenreService genreService;
 
     @GetMapping
     public List<Genre> getAllGenres() {
-        return repository.findAll();
+        return genreService.getAllGenres();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Genre> getGenreById(@PathVariable int id) {
-        Genre genre = repository.findById(id).orElse(null);
+        Genre genre = genreService.getGenreById(id);
         if (genre == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
@@ -31,24 +32,22 @@ public class GenreController {
     }
 
     @PostMapping
-    public Genre createGenre(@RequestBody Genre genre) {
-        return repository.save(genre);
+    public Genre createGenre(@RequestBody CreateGenreDto genreDto) {
+        return genreService.createGenre(genreDto);
     }
 
-    @PutMapping("/{id}")
-    public Genre updateGenre(@PathVariable int id, @RequestBody Genre updatedGenre) {
-        return repository.findById(id)
-                .map(genre -> {
-                    if (updatedGenre.getName() != null) {
-                        genre.setName(updatedGenre.getName());
-                    }
-                    return repository.save(genre);
-                })
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Genre not found"));
+    @PutMapping
+    public ResponseEntity<Genre> updateGenre(@RequestBody EditGenreDto updatedGenre) {
+        Genre genre = genreService.updateGenre(updatedGenre);
+        if (genre == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(genre);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteGenre(@PathVariable int id){
-        repository.deleteById(id);
+    public ResponseEntity<Void> deleteGenre(@PathVariable int id) {
+        genreService.deleteGenre(id);
+        return ResponseEntity.noContent().build();
     }
 }
