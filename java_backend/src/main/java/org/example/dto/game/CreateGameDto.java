@@ -21,4 +21,6 @@ public class CreateGameDto {
     private boolean isFree;
 
     private Genre genre;
+
+//    private String imageUrl;
 }

@@ -42,9 +42,9 @@ public class DatabaseSeeder {
     private void seedGenres() {
         if (genreRepository.count() == 0) {
             List<Genre> genres = List.of(
-                    createGenre("Action"),
-                    createGenre("Strategy"),
-                    createGenre("FPS")
+                    createGenre("Action", "https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Action-512.png"),
+                    createGenre("Strategy", "https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Strategy-512.png"),
+                    createGenre("FPS", "https://cdn1.iconfinder.com/data/icons/video-movie/24/action-512.png")
             );
             genreRepository.saveAll(genres);
         }
@@ -71,9 +71,10 @@ public class DatabaseSeeder {
         return user;
     }
 
-    private Genre createGenre(String name) {
+    private Genre createGenre(String name, String imageUrl) {
         Genre genre = new Genre();
         genre.setName(name);
+        genre.setImageUrl(imageUrl);
         return genre;
     }
 

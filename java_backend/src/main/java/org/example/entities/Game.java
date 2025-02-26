@@ -36,4 +36,7 @@ public class Game {
     @ManyToOne
     @JoinColumn(name = "genre_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_game_genre", value = ConstraintMode.CONSTRAINT))
     private Genre genre;
+
+//    @Column(length = 255)
+//    private String imageUrl;
 }

@@ -13,4 +13,10 @@ public class Genre {
 
     @Column(length = 100, nullable = false, unique = true)
     private String name;
+
+    @Column(length = 255)
+    private String imageUrl;
+
+    @Column(length = 40000)
+    private String description;
 }

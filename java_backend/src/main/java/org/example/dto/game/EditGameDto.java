@@ -23,4 +23,6 @@ public class EditGameDto {
     private boolean isFree;
 
     private Genre genre;
+
+//    private String imageUrl;
 }

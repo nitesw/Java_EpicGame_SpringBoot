@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/games")
-public class GamesController {
+public class GameController {
     @Autowired
     private GameService service;
 
