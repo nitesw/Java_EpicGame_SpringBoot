@@ -1,5 +1,6 @@
 package org.example.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -35,8 +36,10 @@ public class Game {
 
     @ManyToOne
     @JoinColumn(name = "genre_id", nullable = false)
+    @JsonManagedReference
     private Genre genre;
 
     @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<GameImage> images;
 }

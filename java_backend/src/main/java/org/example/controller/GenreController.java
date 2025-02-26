@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.dto.genre.CreateGenreDto;
 import org.example.dto.genre.EditGenreDto;
+import org.example.dto.genre.GenreDto;
 import org.example.entities.Genre;
 import org.example.service.GenreService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +19,13 @@ public class GenreController {
     private GenreService genreService;
 
     @GetMapping
-    public List<Genre> getAllGenres() {
+    public List<GenreDto> getAllGenres() {
         return genreService.getAllGenres();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Genre> getGenreById(@PathVariable int id) {
-        Genre genre = genreService.getGenreById(id);
+    public ResponseEntity<GenreDto> getGenreById(@PathVariable int id) {
+        GenreDto genre = genreService.getGenreById(id);
         if (genre == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

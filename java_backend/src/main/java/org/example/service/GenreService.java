@@ -1,8 +1,11 @@
 package org.example.service;
 
+import lombok.AllArgsConstructor;
 import org.example.dto.genre.CreateGenreDto;
 import org.example.dto.genre.EditGenreDto;
+import org.example.dto.genre.GenreDto;
 import org.example.entities.Genre;
+import org.example.mapper.IGenreMapper;
 import org.example.repository.IGenreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,16 +13,18 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class GenreService {
-    @Autowired
-    private IGenreRepository genreRepository;
+    private final IGenreRepository genreRepository;
+    private final IGenreMapper genreMapper;
 
-    public List<Genre> getAllGenres() {
-        return genreRepository.findAll();
+    public List<GenreDto> getAllGenres() {
+        return genreMapper.toDto(genreRepository.findAll());
     }
 
-    public Genre getGenreById(int id) {
-        return genreRepository.findById(id).orElse(null);
+    public GenreDto getGenreById(int id) {
+        var entity = genreRepository.findById(id).orElse(null);
+        return genreMapper.toDto(entity);
     }
 
     public Genre createGenre(CreateGenreDto genreDto) {

@@ -1,5 +1,6 @@
 package org.example.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -19,5 +20,6 @@ public class GameImage {
 
     @ManyToOne
     @JoinColumn(name = "game_id", nullable = false)
+    @JsonManagedReference
     private Game game;
 }

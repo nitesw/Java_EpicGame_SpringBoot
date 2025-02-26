@@ -10,6 +10,7 @@ import org.example.repository.IGameImageRepository;
 import org.example.repository.IGameRepository;
 import org.example.repository.IGenreRepository;
 import org.example.repository.IUserRepository;
+import org.example.service.FileService;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -23,6 +24,7 @@ public class DatabaseSeeder {
     private final IGenreRepository genreRepository;
     private final IGameRepository gameRepository;
     private final IGameImageRepository gameImageRepository;
+    private final FileService fileService;
 
     @PostConstruct
     public void seed() {
@@ -44,10 +46,14 @@ public class DatabaseSeeder {
 
     private void seedGenres() {
         if (genreRepository.count() == 0) {
+            var action = fileService.load("https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Action-512.png");
+            var strategy = fileService.load("https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Strategy-512.png");
+            var fps = fileService.load("https://cdn1.iconfinder.com/data/icons/video-movie/24/action-512.png");
+
             List<Genre> genres = List.of(
-                    createGenre("Action", "https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Action-512.png", "Description of Action genre."),
-                    createGenre("Strategy", "https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Strategy-512.png", "Description of Strategy genre."),
-                    createGenre("FPS", "https://cdn1.iconfinder.com/data/icons/video-movie/24/action-512.png", "Description of FPS genre.")
+                    createGenre("Action", action, "Description of Action genre."),
+                    createGenre("Strategy", strategy, "Description of Strategy genre."),
+                    createGenre("FPS", fps, "Description of FPS genre.")
             );
             genreRepository.saveAll(genres);
         }
@@ -63,16 +69,23 @@ public class DatabaseSeeder {
 
             gameRepository.saveAll(games);
 
+            var cyberpunk1 = fileService.load("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvBpMCXkraGga7Pqwhz-cqOVqQq-B6WU2bJg&s");
+            var cyberpunk2 = fileService.load("https://cdn.alza.sk/Foto/ImgGalery/Image/cyberpunk-2077-tipy-cover.jpg");
             seedGameImages(games.get(0), List.of(
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvBpMCXkraGga7Pqwhz-cqOVqQq-B6WU2bJg&s",
-                    "https://cdn.alza.sk/Foto/ImgGalery/Image/cyberpunk-2077-tipy-cover.jpg")
+                    cyberpunk1,
+                    cyberpunk2)
             );
+
+            var ageofempires1 = fileService.load("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuAG8lAf-TEPeidFBdbyvyPsk9Extn0LJoPQ&s");
+            var ageofempires2 = fileService.load("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRUGj52J2zDHqYlEruxArulGA6Wiogz_YCtg&s");
             seedGameImages(games.get(1), List.of(
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuAG8lAf-TEPeidFBdbyvyPsk9Extn0LJoPQ&s",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRUGj52J2zDHqYlEruxArulGA6Wiogz_YCtg&s")
+                    ageofempires1,
+                    ageofempires2)
             );
+
+            var cod1 = fileService.load("https://image.api.playstation.com/vulcan/img/cfn/1130791_COqLRw6IGlDVHxyV8aqC9_YaF0sCN8IbOlVhzJ6sWm5tlpKTjN8npK2vA_mUJUdyQjP4-U4rEnk7cScmlvoLzXi7.png");
             seedGameImages(games.get(2), List.of(
-                    "https://image.api.playstation.com/vulcan/img/cfn/1130791_COqLRw6IGlDVHxyV8aqC9_YaF0sCN8IbOlVhzJ6sWm5tlpKTjN8npK2vA_mUJUdyQjP4-U4rEnk7cScmlvoLzXi7.png")
+                    cod1)
             );
         }
     }

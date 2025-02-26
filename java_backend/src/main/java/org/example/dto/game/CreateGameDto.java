@@ -9,17 +9,11 @@ import java.time.LocalDate;
 @Data
 public class CreateGameDto {
     private String title;
-
     private String developer;
-
     private String publisher;
-
     private LocalDate release_date;
-
     private BigDecimal price;
-
     private boolean isFree;
-
     private Genre genre;
 
 //    private String imageUrl;
