@@ -23,5 +23,5 @@ public class User {
     private String password_hash;
 
     @Column(nullable = false)
-    private LocalDate created_at;
+    private LocalDate created_at = LocalDate.now();
 }

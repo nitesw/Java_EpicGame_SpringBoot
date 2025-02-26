@@ -5,7 +5,7 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -34,9 +34,9 @@ public class Game {
     private boolean isFree;
 
     @ManyToOne
-    @JoinColumn(name = "genre_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_game_genre", value = ConstraintMode.CONSTRAINT))
+    @JoinColumn(name = "genre_id", nullable = false)
     private Genre genre;
 
-//    @Column(length = 255)
-//    private String imageUrl;
+    @OneToMany(mappedBy = "game", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GameImage> images;
 }

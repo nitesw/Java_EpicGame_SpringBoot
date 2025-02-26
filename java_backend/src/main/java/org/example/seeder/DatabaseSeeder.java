@@ -3,8 +3,10 @@ package org.example.seeder;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.example.entities.Game;
+import org.example.entities.GameImage;
 import org.example.entities.Genre;
 import org.example.entities.User;
+import org.example.repository.IGameImageRepository;
 import org.example.repository.IGameRepository;
 import org.example.repository.IGenreRepository;
 import org.example.repository.IUserRepository;
@@ -20,6 +22,7 @@ public class DatabaseSeeder {
     private final IUserRepository userRepository;
     private final IGenreRepository genreRepository;
     private final IGameRepository gameRepository;
+    private final IGameImageRepository gameImageRepository;
 
     @PostConstruct
     public void seed() {
@@ -42,9 +45,9 @@ public class DatabaseSeeder {
     private void seedGenres() {
         if (genreRepository.count() == 0) {
             List<Genre> genres = List.of(
-                    createGenre("Action", "https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Action-512.png"),
-                    createGenre("Strategy", "https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Strategy-512.png"),
-                    createGenre("FPS", "https://cdn1.iconfinder.com/data/icons/video-movie/24/action-512.png")
+                    createGenre("Action", "https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Action-512.png", "Description of Action genre."),
+                    createGenre("Strategy", "https://cdn0.iconfinder.com/data/icons/game-genre-outline/64/Game_Genre_Strategy-512.png", "Description of Strategy genre."),
+                    createGenre("FPS", "https://cdn1.iconfinder.com/data/icons/video-movie/24/action-512.png", "Description of FPS genre.")
             );
             genreRepository.saveAll(genres);
         }
@@ -52,15 +55,41 @@ public class DatabaseSeeder {
 
     private void seedGames() {
         if (gameRepository.count() == 0) {
-            Genre genre = genreRepository.findAll().get(0);
-
             List<Game> games = List.of(
-                    createGame("Cyberpunk 2077", "CD Projekt Red", "CD Projekt", LocalDate.of(2020, 12, 10), new BigDecimal("59.99"), false, genre),
-                    createGame("Age of Empires IV", "Relic Entertainment", "Xbox Game Studios", LocalDate.of(2021, 10, 28), new BigDecimal("49.99"), false, genre),
-                    createGame("Call of Duty: Modern Warfare", "Infinity Ward", "Activision", LocalDate.of(2019, 10, 25), new BigDecimal("39.99"), false, genre)
+                    createGame("Cyberpunk 2077", "CD Projekt Red", "CD Projekt", LocalDate.of(2020, 12, 10), new BigDecimal("59.99"), false, genreRepository.findAll().get(0)),
+                    createGame("Age of Empires IV", "Relic Entertainment", "Xbox Game Studios", LocalDate.of(2021, 10, 28), new BigDecimal("49.99"), false, genreRepository.findAll().get(1)),
+                    createGame("Call of Duty: Modern Warfare", "Infinity Ward", "Activision", LocalDate.of(2019, 10, 25), new BigDecimal("39.99"), false, genreRepository.findAll().get(2))
             );
+
             gameRepository.saveAll(games);
+
+            seedGameImages(games.get(0), List.of(
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvBpMCXkraGga7Pqwhz-cqOVqQq-B6WU2bJg&s",
+                    "https://cdn.alza.sk/Foto/ImgGalery/Image/cyberpunk-2077-tipy-cover.jpg")
+            );
+            seedGameImages(games.get(1), List.of(
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTuAG8lAf-TEPeidFBdbyvyPsk9Extn0LJoPQ&s",
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQRUGj52J2zDHqYlEruxArulGA6Wiogz_YCtg&s")
+            );
+            seedGameImages(games.get(2), List.of(
+                    "https://image.api.playstation.com/vulcan/img/cfn/1130791_COqLRw6IGlDVHxyV8aqC9_YaF0sCN8IbOlVhzJ6sWm5tlpKTjN8npK2vA_mUJUdyQjP4-U4rEnk7cScmlvoLzXi7.png")
+            );
         }
+    }
+
+    private void seedGameImages(Game game, List<String> imageUrls) {
+        List<GameImage> images = imageUrls.stream()
+                .map(url -> createGameImage(url, game))
+                .toList();
+        gameImageRepository.saveAll(images);
+    }
+
+    private GameImage createGameImage(String imageUrl, Game game) {
+        GameImage image = new GameImage();
+        image.setImageUrl(imageUrl);
+        image.setPriority(1);
+        image.setGame(game);
+        return image;
     }
 
     private User createUser(String username, String email, String password) {
@@ -71,10 +100,11 @@ public class DatabaseSeeder {
         return user;
     }
 
-    private Genre createGenre(String name, String imageUrl) {
+    private Genre createGenre(String name, String imageUrl, String description) {
         Genre genre = new Genre();
         genre.setName(name);
         genre.setImageUrl(imageUrl);
+        genre.setDescription(description);
         return genre;
     }
 
