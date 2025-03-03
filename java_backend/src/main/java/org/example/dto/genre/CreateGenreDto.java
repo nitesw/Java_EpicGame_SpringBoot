@@ -1,10 +1,11 @@
 package org.example.dto.genre;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class CreateGenreDto {
     private String name;
-    private String imageUrl;
+    private MultipartFile image;
     private String description;
 }

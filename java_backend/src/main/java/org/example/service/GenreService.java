@@ -17,6 +17,7 @@ import java.util.List;
 public class GenreService {
     private final IGenreRepository genreRepository;
     private final IGenreMapper genreMapper;
+    private final FileService fileService;
 
     public List<GenreDto> getAllGenres() {
         return genreMapper.toDto(genreRepository.findAll());
@@ -30,7 +31,8 @@ public class GenreService {
     public Genre createGenre(CreateGenreDto genreDto) {
         Genre genre = new Genre();
         genre.setName(genreDto.getName());
-        genre.setImageUrl(genreDto.getImageUrl());
+        var imageUrl = fileService.load(genreDto.getImage());
+        genre.setImageUrl(imageUrl);
         genre.setDescription(genreDto.getDescription());
         return genreRepository.save(genre);
     }
@@ -44,19 +46,24 @@ public class GenreService {
         if (updatedGenre.getName() != null && !updatedGenre.getName().isBlank()) {
             genre.setName(updatedGenre.getName());
         }
-        if (updatedGenre.getImageUrl() != null && !updatedGenre.getImageUrl().isBlank()) {
-            genre.setImageUrl(updatedGenre.getImageUrl());
-        }
         if (updatedGenre.getDescription() != null && !updatedGenre.getDescription().isBlank()) {
             genre.setDescription(updatedGenre.getDescription());
+        }
+        if (updatedGenre.getImage() != null) {
+            fileService.remove(genre.getImageUrl());
+            var imageUrl = fileService.load(updatedGenre.getImage());
+            genre.setImageUrl(imageUrl);
         }
         return genreRepository.save(genre);
     }
 
     public void deleteGenre(int id) {
-        if (!genreRepository.existsById(id)) {
+        var genreOptional = genreRepository.findById(id);
+        if (genreOptional.isEmpty()) {
             return;
         }
+        Genre genre = genreOptional.get();
+        fileService.remove(genre.getImageUrl());
         genreRepository.deleteById(id);
     }
 }

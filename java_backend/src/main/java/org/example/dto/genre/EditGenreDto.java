@@ -3,9 +3,6 @@ package org.example.dto.genre;
 import lombok.Data;
 
 @Data
-public class EditGenreDto {
+public class EditGenreDto extends CreateGenreDto {
     private int id;
-    private String name;
-    private String imageUrl;
-    private String description;
 }

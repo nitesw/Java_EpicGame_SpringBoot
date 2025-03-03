@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 @RestController
 @RequestMapping("/api/games")
 public class GameController {
@@ -31,13 +33,13 @@ public class GameController {
         return ResponseEntity.ok(game);
     }
 
-    @PostMapping
-    public Game createGame(@RequestBody CreateGameDto gameDto) {
+    @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
+    public Game createGame(@ModelAttribute CreateGameDto gameDto) {
         return service.createGame(gameDto);
     }
 
-    @PutMapping
-    public Game updateGame(@RequestBody EditGameDto updatedGame) {
+    @PutMapping(consumes = MULTIPART_FORM_DATA_VALUE)
+    public Game updateGame(@ModelAttribute EditGameDto updatedGame) {
         return service.updateGame(updatedGame);
     }
 

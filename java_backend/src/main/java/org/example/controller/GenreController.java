@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 @RestController
 @RequestMapping("/api/genres")
 public class GenreController {
@@ -32,13 +34,13 @@ public class GenreController {
         return ResponseEntity.ok(genre);
     }
 
-    @PostMapping
-    public Genre createGenre(@RequestBody CreateGenreDto genreDto) {
+    @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
+    public Genre createGenre(@ModelAttribute CreateGenreDto genreDto) {
         return genreService.createGenre(genreDto);
     }
 
-    @PutMapping
-    public ResponseEntity<Genre> updateGenre(@RequestBody EditGenreDto updatedGenre) {
+    @PutMapping(consumes = MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Genre> updateGenre(@ModelAttribute EditGenreDto updatedGenre) {
         Genre genre = genreService.updateGenre(updatedGenre);
         if (genre == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
