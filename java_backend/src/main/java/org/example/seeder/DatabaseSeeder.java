@@ -126,7 +126,7 @@ public class DatabaseSeeder {
         game.setTitle(title);
         game.setDeveloper(developer);
         game.setPublisher(publisher);
-        game.setRelease_date(releaseDate);
+        game.setReleaseDate(releaseDate);
         game.setPrice(price);
         game.setFree(isFree);
         game.setGenre(genre);

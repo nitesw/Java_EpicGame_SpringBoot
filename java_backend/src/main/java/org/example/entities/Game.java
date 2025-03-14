@@ -26,13 +26,13 @@ public class Game {
     private String publisher;
 
     @Column(name="release_date")
-    private LocalDate release_date;
+    private LocalDate releaseDate;
 
     @Column(nullable = false, precision = 10, scale = 2, columnDefinition = "DECIMAL(10,2) CHECK (price >= 0)")
     private BigDecimal price;
 
     @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE", name = "is_free")
-    private boolean isFree;
+    private boolean isFree = false;
 
     @ManyToOne
     @JoinColumn(name = "genre_id", nullable = false)

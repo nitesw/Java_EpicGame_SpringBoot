@@ -1,82 +1,137 @@
 package org.example.service;
 
+import lombok.AllArgsConstructor;
 import org.example.dto.game.CreateGameDto;
 import org.example.dto.game.EditGameDto;
+import org.example.dto.game.GameDto;
 import org.example.entities.Game;
+import org.example.entities.GameImage;
 import org.example.entities.Genre;
+import org.example.mapper.IGameMapper;
+import org.example.repository.IGameImageRepository;
 import org.example.repository.IGameRepository;
 import org.example.repository.IGenreRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class GameService {
-    @Autowired
-    private IGameRepository gameRepository;
+    private final IGameRepository gameRepository;
+    private final IGameMapper gameMapper;
+    private final FileService fileService;
+    private final IGameImageRepository gameImageRepository;
 
-    @Autowired
-    private IGenreRepository genreRepository;
-
-    public List<Game> getAllGames() {
-        return gameRepository.findAll();
+    public List<GameDto> getAllGames() {
+        return gameMapper.toDto(gameRepository.findAll());
     }
 
-    public Game getGameById(int id) {
-        return gameRepository.findById(id).orElse(null);
+    public GameDto getGameById(int id) {
+        var entity = gameRepository.findById(id).orElse(null);
+        return gameMapper.toDto(entity);
     }
 
-    public Game createGame(CreateGameDto gameDto) {
-        Game game = new Game();
-        game.setTitle(gameDto.getTitle());
-        game.setDeveloper(gameDto.getDeveloper());
-        game.setPublisher(gameDto.getPublisher());
-        game.setRelease_date(gameDto.getRelease_date());
-        game.setPrice(gameDto.getPrice());
-        game.setFree(gameDto.isFree());
+    public boolean createGame(CreateGameDto gameDto) {
+        Game entity = new Game();
+        entity.setTitle(gameDto.getTitle());
+        entity.setDeveloper(gameDto.getDeveloper());
+        entity.setPublisher(gameDto.getPublisher());
+        entity.setReleaseDate(gameDto.getReleaseDate());
+        entity.setPrice(gameDto.getPrice());
+        entity.setFree(gameDto.isFree());
+        var genre = new Genre();
+        genre.setId(gameDto.getGenreId());
+        entity.setGenre(genre);
 
-        if (gameDto.getGenre() != null) {
-            game.setGenre(gameDto.getGenre());
+        gameRepository.save(entity);
+
+        int priority = 1;
+        for (var img : gameDto.getImages()) {
+            var imageUrl = fileService.load(img);
+            var tmpImg = new GameImage();
+            tmpImg.setPriority(priority);
+            tmpImg.setImageUrl(imageUrl);
+            tmpImg.setGame(entity);
+            gameImageRepository.save(tmpImg);
+            priority++;
         }
-
-        return gameRepository.save(game);
+        return true;
     }
 
-    public Game updateGame(EditGameDto updatedGame) {
-        Game game = gameRepository.findById(updatedGame.getId())
+    public boolean updateGame(EditGameDto updatedGame) {
+        Game entity = gameRepository.findById(updatedGame.getId())
                 .orElse(null);
-        if (game == null) {
-            return null;
+        if (entity == null) {
+            return false;
         }
-        if (updatedGame.getTitle() != null && !updatedGame.getTitle().isBlank()) {
-            game.setTitle(updatedGame.getTitle());
-        }
-        if (updatedGame.getDeveloper() != null && !updatedGame.getDeveloper().isBlank()) {
-            game.setDeveloper(updatedGame.getDeveloper());
-        }
-        if (updatedGame.getPublisher() != null && !updatedGame.getPublisher().isBlank()) {
-            game.setPublisher(updatedGame.getPublisher());
-        }
-        if (updatedGame.getRelease_date() != null) {
-            game.setRelease_date(updatedGame.getRelease_date());
-        }
-        if (updatedGame.getPrice() != null) {
-            game.setPrice(updatedGame.getPrice());
-        }
-        game.setFree(updatedGame.isFree());
 
-        if (updatedGame.getGenre() != null) {
-            game.setGenre(updatedGame.getGenre());
+        entity.setTitle(updatedGame.getTitle());
+        entity.setDeveloper(updatedGame.getDeveloper());
+        entity.setPublisher(updatedGame.getPublisher());
+        entity.setReleaseDate(updatedGame.getReleaseDate());
+        entity.setPrice(updatedGame.getPrice());
+        entity.setFree(updatedGame.isFree());
+
+        var genre = new Genre();
+        genre.setId(updatedGame.getGenreId());
+        entity.setGenre(genre);
+
+        Map<String, GameImage> existingImages = entity.getImages().stream()
+                .collect(Collectors.toMap(GameImage::getImageUrl, img -> img));
+
+        List<GameImage> updatedImages = new ArrayList<>();
+
+        for (int i = 0; i < updatedGame.getImages().size(); i++) {
+            var img = updatedGame.getImages().get(i);
+
+            if ("old-image".equals(img.getContentType())){
+                var imageUrl = img.getOriginalFilename();
+                if (existingImages.containsKey(imageUrl)) {
+                    var oldImage = existingImages.get(imageUrl);
+                    oldImage.setPriority(i);
+                    gameImageRepository.save(oldImage);
+                    updatedImages.add(oldImage);
+                }
+            } else {
+                var imageUrl = fileService.load(img);
+                var newImage = new GameImage();
+                newImage.setImageUrl(imageUrl);
+                newImage.setPriority(i);
+                newImage.setGame(entity);
+                gameImageRepository.save(newImage);
+            }
         }
-        return gameRepository.save(game);
+
+        List<Integer> removeIds = new ArrayList<>();
+        for (var img : entity.getImages()) {
+            if (!updatedImages.contains(img)){
+                fileService.remove(img.getImageUrl());
+                removeIds.add(img.getId());
+            }
+        }
+
+        gameImageRepository.deleteAllByIdInBatch(removeIds);
+        gameRepository.save(entity);
+        return true;
     }
 
-    public void deleteGame(int id) {
-        if (!gameRepository.existsById(id)) {
-            return;
+    public boolean deleteGame(int id) {
+        var entity = gameRepository.findById(id).orElse(null);
+        if(entity == null){
+            return false;
+        }
+        var imgs = entity.getImages();
+        for (var img : imgs) {
+            fileService.remove(img.getImageUrl());
+            gameImageRepository.delete(img);
         }
         gameRepository.deleteById(id);
+        return true;
     }
 }

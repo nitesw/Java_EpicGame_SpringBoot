@@ -2,6 +2,7 @@ package org.example.controller;
 
 import org.example.dto.game.CreateGameDto;
 import org.example.dto.game.EditGameDto;
+import org.example.dto.game.GameDto;
 import org.example.entities.Game;
 import org.example.service.GameService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,34 +18,44 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 @RequestMapping("/api/games")
 public class GameController {
     @Autowired
-    private GameService service;
+    private GameService gameService;
 
     @GetMapping
-    public List<Game> getAllGames() {
-        return service.getAllGames();
+    public List<GameDto> getAllGames() {
+        return gameService.getAllGames();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Game> getGameById(@PathVariable int id) {
-        Game game = service.getGameById(id);
+    public ResponseEntity<GameDto> getGameById(@PathVariable int id) {
+        GameDto game = gameService.getGameById(id);
         if (game == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(game);
     }
 
     @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
-    public Game createGame(@ModelAttribute CreateGameDto gameDto) {
-        return service.createGame(gameDto);
+    public ResponseEntity<Void> createGame(@ModelAttribute CreateGameDto gameDto) {
+        var created = gameService.createGame(gameDto);
+        if (!created) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping(consumes = MULTIPART_FORM_DATA_VALUE)
-    public Game updateGame(@ModelAttribute EditGameDto updatedGame) {
-        return service.updateGame(updatedGame);
+    public ResponseEntity<Void> updateGame(@ModelAttribute EditGameDto updatedGame) {
+        var updated = gameService.updateGame(updatedGame);
+        if (!updated) {
+            return ResponseEntity.internalServerError().build();
+        }
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteGame(@PathVariable int id) {
-        service.deleteGame(id);
+    public ResponseEntity<Void> deleteGame(@PathVariable int id) {
+        return gameService.deleteGame(id)
+                ? ResponseEntity.ok().build()
+                : ResponseEntity.notFound().build();
     }
 }

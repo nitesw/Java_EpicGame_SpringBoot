@@ -104,9 +104,10 @@ const GenreEditForm = () => {
                                 />
                                 {imageUrl && (
                                     <img
-                                        src={imageUrl}
+                                        src={"http://localhost:8084/images/large/" + imageUrl}
                                         alt="image"
                                         className="mt-2 w-full max-h-48 object-cover rounded-lg"
+                                        draggable="false"
                                     />
                                 )}
                             </>

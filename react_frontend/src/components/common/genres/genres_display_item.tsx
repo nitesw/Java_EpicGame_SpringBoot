@@ -27,7 +27,7 @@ const GenresDisplayItem = ({item, index}: {item: GenreModel, index: number}) => 
     return (
         <tr key={index} className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
             <th scope="row" className="px-6 py-4 font-medium text-gray-900">
-                <img src={item.imageUrl} alt={item.name} style={{ width: "48px", borderRadius: "10px" }} draggable={false} />
+                <img src={"http://localhost:8084/images/medium/" + item.imageUrl} alt={item.name} style={{ width: "48px", borderRadius: "10px" }} draggable={false} />
             </th>
             <td className="px-6 py-4">{item.name}</td>
             <td className="px-6 py-4">{item.description}</td>
