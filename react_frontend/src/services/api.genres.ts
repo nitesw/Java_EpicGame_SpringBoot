@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { APP_ENV } from "../env";
 import {GenreModel, GenrePostModel, GenrePutModel} from "../models/genres.ts";
+import {serialize} from "object-to-formdata";
 
 export const apiGenre = createApi({
     reducerPath: 'genre',
@@ -16,19 +17,35 @@ export const apiGenre = createApi({
             providesTags: (_, __, id) => [{ type: 'Genre', id }]
         }),
         createGenre: builder.mutation<GenreModel, GenrePostModel>({
-            query: (newGenre) => ({
-                url: 'genres',
-                method: 'POST',
-                body: newGenre
-            }),
-            invalidatesTags: ['Genre']
+            query: (newGenre) => {
+                try {
+                    const formData = serialize(newGenre);
+                    return {
+                        url: 'genres',
+                        method: 'POST',
+                        body: formData,
+                    };
+                } catch (error) {
+                    console.error('Error while creating genre:', error);
+                    throw error;
+                }
+            },
+            invalidatesTags: ['Genre'],
         }),
         updateGenre: builder.mutation<GenreModel, GenrePutModel>({
-            query: ( updatedGenre) => ({
-                url: `genres`,
-                method: 'PUT',
-                body: updatedGenre
-            }),
+            query: (updatedGenre) => {
+                try {
+                    const formData = serialize(updatedGenre);
+                    return {
+                        url: 'genres',
+                        method: 'PUT',
+                        body: formData,
+                    };
+                } catch (error) {
+                    console.error('Error while updating genre:', error);
+                    throw error;
+                }
+            },
             invalidatesTags: ['Genre']
         }),
         deleteGenre: builder.mutation<{ success: boolean }, number>({

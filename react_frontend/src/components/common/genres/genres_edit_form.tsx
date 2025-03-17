@@ -1,10 +1,12 @@
-import {Form, Input, Button, notification, Skeleton} from 'antd';
+import {Form, Input, Button, notification, Skeleton, Upload} from 'antd';
 import {useGetGenreQuery, useUpdateGenreMutation} from "../../../services/api.genres.ts";
 import {GenrePutModel} from "../../../models/genres.ts";
 import {useEffect, useState} from "react";
 import {Link, useNavigate, useParams} from "react-router-dom";
 import {setSpinner} from "../../../redux/spinner/spinnerSlice.ts";
 import {useDispatch} from "react-redux";
+import {APP_ENV} from "../../../env";
+import {UploadOutlined} from "@ant-design/icons";
 
 const { Item } = Form;
 
@@ -16,7 +18,7 @@ const GenreEditForm = () => {
     const [updateGenre] = useUpdateGenreMutation();
     const dispatch = useDispatch();
 
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [imageFile, setImageFile] = useState<File | undefined>(undefined);
 
     useEffect(() => {
         dispatch(setSpinner(isLoading));
@@ -36,10 +38,9 @@ const GenreEditForm = () => {
 
     useEffect(() => {
         if (genre) {
-            setImageUrl(genre.imageUrl);
+            setImageFile(undefined);
             form.setFieldsValue({
                 name: genre.name,
-                imageUrl: genre.imageUrl,
                 description: genre.description
             });
         }
@@ -47,20 +48,43 @@ const GenreEditForm = () => {
 
     const onFinish = async (values: GenrePutModel) => {
         try {
-            const genre = await updateGenre({...values, id: Number(id)}).unwrap();
-            console.log("Update Genre", genre);
+            const genreData: GenrePutModel = {
+                ...values,
+                id: Number(id),
+                image: imageFile,
+            };
+
+            console.log(genreData);
+
+            await updateGenre(genreData).unwrap();
+            notification.success({
+                message: "Successfully edited",
+                description: "Genre successfully edited",
+                placement: "top"
+            });
+
             navigate("/genres");
         } catch (err) {
             console.error("Error editing genre", err);
             notification.error({
                 message: "Error editing genre",
                 description: "Something went wrong",
-            })
+            });
         }
     }
 
-    const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setImageUrl(e.target.value);
+    const beforeUpload = (file: File) => {
+        const isImage = file.type.startsWith("image");
+        if (!isImage) {
+            notification.error({
+                message: "Error changing an image",
+                description: "File can only be an image",
+                placement: "top"
+            });
+            return false;
+        }
+        setImageFile(file);
+        return false;
     };
 
     return (
@@ -69,8 +93,7 @@ const GenreEditForm = () => {
                 <Skeleton paragraph={{rows: 4}}/>
             ) : (
                 <>
-                    <h1 className="text-center text-4xl font-bold leading-none tracking-tight text-gray-900 mb-5">Edit
-                        Genre</h1>
+                    <h1 className="text-center text-4xl font-bold leading-none tracking-tight text-gray-900 mb-5">Edit Genre</h1>
                     <Form
                         form={form}
                         onFinish={onFinish}
@@ -92,19 +115,26 @@ const GenreEditForm = () => {
                         </Item>
 
                         <Item
-                            name="imageUrl"
+                            name="image"
                             label="Image"
-                            rules={[{required: true, message: 'Image url is required!'}]}
                         >
                             <>
-                                <Input
-                                    placeholder="Enter genre image URL..."
-                                    value={imageUrl || ''}
-                                    onChange={handleImageUrlChange}
-                                />
-                                {imageUrl && (
+                                <Upload
+                                    beforeUpload={beforeUpload}
+                                    showUploadList={false}
+                                >
+                                    <Button icon={<UploadOutlined />}>Upload Image</Button>
+                                </Upload>
+                                {imageFile && (
                                     <img
-                                        src={"http://localhost:8084/images/large/" + imageUrl}
+                                        src={URL.createObjectURL(imageFile)}
+                                        alt="image"
+                                        className="mt-2 w-full max-h-48 object-cover rounded-lg"
+                                    />
+                                )}
+                                {genre?.imageUrl && !imageFile && (
+                                    <img
+                                        src={`${APP_ENV.REMOTE_LARGE_IMAGES_URL}${genre.imageUrl}`}
                                         alt="image"
                                         className="mt-2 w-full max-h-48 object-cover rounded-lg"
                                         draggable="false"

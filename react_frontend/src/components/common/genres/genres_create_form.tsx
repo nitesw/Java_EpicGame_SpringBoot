@@ -1,8 +1,9 @@
-import { Form, Input, Button, notification } from 'antd';
+import {Form, Input, Button, notification, Upload} from 'antd';
 import {useCreateGenreMutation} from "../../../services/api.genres.ts";
 import {GenrePostModel} from "../../../models/genres.ts";
 import {useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
+import {UploadOutlined} from "@ant-design/icons";
 
 const { Item } = Form;
 
@@ -11,14 +12,15 @@ const GenreCreateForm = () => {
     const [form] = Form.useForm<GenrePostModel>();
     const navigate = useNavigate();
 
-    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [imageFile, setImageFile] = useState<File | undefined>(undefined);
+    // const [imageUrl, setImageUrl] = useState<string | null>(null);
 
     const onFinish = async (values: GenrePostModel) => {
         try {
             const genreData: GenrePostModel = {
                 name: values.name,
                 description: values.description || '',
-                imageUrl: imageUrl || '',
+                image: imageFile,
             }
 
             await createGenre(genreData).unwrap();
@@ -38,8 +40,18 @@ const GenreCreateForm = () => {
         }
     }
 
-    const handleImageUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setImageUrl(e.target.value);
+    const beforeUpload = (file: File) => {
+        const isImage = file.type.startsWith("image");
+        if(!isImage) {
+            notification.error({
+                message: "Error adding an image",
+                description: "File can only be an image",
+                placement: "top"
+            })
+            return false;
+        }
+        setImageFile(file);
+        return false;
     };
 
     return (
@@ -62,19 +74,17 @@ const GenreCreateForm = () => {
                 </Item>
 
                 <Item
-                    name="imageUrl"
+                    name="image"
                     label="Image"
-                    rules={[{ required: true, message: 'Image url is required!' }]}
+                    rules={[{ required: true, message: 'Image is required!' }]}
                 >
                     <>
-                        <Input
-                            placeholder="Enter genre image URL..."
-                            value={imageUrl || ''}
-                            onChange={handleImageUrlChange}
-                        />
-                        {imageUrl && (
+                        <Upload beforeUpload={beforeUpload} showUploadList={false}>
+                            <Button icon={<UploadOutlined/>}>Upload Image</Button>
+                        </Upload>
+                        {imageFile && (
                             <img
-                                src={imageUrl}
+                                src={URL.createObjectURL(imageFile)}
                                 alt="image"
                                 className="mt-2 w-full max-h-48 object-cover rounded-lg"
                             />

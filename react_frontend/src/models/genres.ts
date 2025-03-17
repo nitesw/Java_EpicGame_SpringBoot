@@ -7,7 +7,7 @@ export interface GenreModel {
 
 export interface GenrePostModel {
     name: string;
-    imageUrl: string;
+    image: File | undefined;
     description: string;
 }
 

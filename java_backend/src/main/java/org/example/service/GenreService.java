@@ -49,7 +49,7 @@ public class GenreService {
         if (updatedGenre.getDescription() != null && !updatedGenre.getDescription().isBlank()) {
             genre.setDescription(updatedGenre.getDescription());
         }
-        if (updatedGenre.getImage() != null) {
+        if (updatedGenre.getImage() != null && !updatedGenre.getImage().isEmpty()) {
             fileService.remove(genre.getImageUrl());
             var imageUrl = fileService.load(updatedGenre.getImage());
             genre.setImageUrl(imageUrl);

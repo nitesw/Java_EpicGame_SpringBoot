@@ -3,6 +3,7 @@ import {DeleteTwoTone, EditTwoTone} from "@ant-design/icons";
 import {Button, notification} from "antd";
 import {useDeleteGenreMutation} from "../../../services/api.genres.ts";
 import {Link} from "react-router-dom";
+import {APP_ENV} from "../../../env";
 
 const GenresDisplayItem = ({item, index}: {item: GenreModel, index: number}) => {
     const [deleteGenre] = useDeleteGenreMutation();
@@ -27,7 +28,7 @@ const GenresDisplayItem = ({item, index}: {item: GenreModel, index: number}) => 
     return (
         <tr key={index} className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"}`}>
             <th scope="row" className="px-6 py-4 font-medium text-gray-900">
-                <img src={"http://localhost:8084/images/medium/" + item.imageUrl} alt={item.name} style={{ width: "48px", borderRadius: "10px" }} draggable={false} />
+                <img src={`${APP_ENV.REMOTE_MEDIUM_IMAGES_URL}${item.imageUrl}`} alt={item.name} style={{ width: "48px", borderRadius: "10px" }} draggable={false} />
             </th>
             <td className="px-6 py-4">{item.name}</td>
             <td className="px-6 py-4">{item.description}</td>
