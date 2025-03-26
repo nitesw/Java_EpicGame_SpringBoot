@@ -21,6 +21,13 @@ const Sidebar: React.FC = () => {
                     </Link>
                 </li>
                 <li>
+                    <Link to="/games" style={{color:'white'}}>
+                        <span className="block p-2 hover:bg-gray-700 rounded" style={{cursor: "pointer"}}>
+                            Games
+                        </span>
+                    </Link>
+                </li>
+                <li>
                     <Link to="/about" style={{color:'white'}}>
                         <span className="block p-2 hover:bg-gray-700 rounded" style={{cursor: "pointer"}}>
                             About

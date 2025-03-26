@@ -90,7 +90,7 @@ public class GameService {
         for (int i = 0; i < updatedGame.getImages().size(); i++) {
             var img = updatedGame.getImages().get(i);
 
-            if ("old-image".equals(img.getContentType())){
+            if ("old-image".equals(img.getContentType())) {
                 var imageUrl = img.getOriginalFilename();
                 if (existingImages.containsKey(imageUrl)) {
                     var oldImage = existingImages.get(imageUrl);

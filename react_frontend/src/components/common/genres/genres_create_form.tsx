@@ -1,19 +1,21 @@
 import {Form, Input, Button, notification, Upload} from 'antd';
 import {useCreateGenreMutation} from "../../../services/api.genres.ts";
 import {GenrePostModel} from "../../../models/genres.ts";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {UploadOutlined} from "@ant-design/icons";
+import {useDispatch} from "react-redux";
+import {setSpinner} from "../../../redux/spinner/spinnerSlice.ts";
 
 const { Item } = Form;
 
-const GenreCreateForm = () => {
-    const [createGenre] = useCreateGenreMutation();
+const GenresCreateForm = () => {
+    const [createGenre, {isLoading: isGenreCreating}] = useCreateGenreMutation();
     const [form] = Form.useForm<GenrePostModel>();
     const navigate = useNavigate();
 
     const [imageFile, setImageFile] = useState<File | undefined>(undefined);
-    // const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const dispatch = useDispatch();
 
     const onFinish = async (values: GenrePostModel) => {
         try {
@@ -53,6 +55,10 @@ const GenreCreateForm = () => {
         setImageFile(file);
         return false;
     };
+
+    useEffect(() => {
+        dispatch(setSpinner(isGenreCreating));
+    }, [isGenreCreating, dispatch]);
 
     return (
         <div style={{maxWidth: '600px', margin: '0 auto'}}>
@@ -115,4 +121,4 @@ const GenreCreateForm = () => {
     )
 }
 
-export default GenreCreateForm;
+export default GenresCreateForm;

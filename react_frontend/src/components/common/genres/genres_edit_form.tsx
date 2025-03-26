@@ -10,12 +10,12 @@ import {UploadOutlined} from "@ant-design/icons";
 
 const { Item } = Form;
 
-const GenreEditForm = () => {
+const GenresEditForm = () => {
     const { id } = useParams<{ id: string }>();
     const [form] = Form.useForm<GenrePutModel>();
     const navigate = useNavigate();
     const { data: genre, error, isLoading } = useGetGenreQuery(Number(id));
-    const [updateGenre] = useUpdateGenreMutation();
+    const [updateGenre, {isLoading: isGenreUpdating}] = useUpdateGenreMutation();
     const dispatch = useDispatch();
 
     const [imageFile, setImageFile] = useState<File | undefined>(undefined);
@@ -48,6 +48,8 @@ const GenreEditForm = () => {
 
     const onFinish = async (values: GenrePutModel) => {
         try {
+            dispatch(setSpinner(true));
+
             const genreData: GenrePutModel = {
                 ...values,
                 id: Number(id),
@@ -66,6 +68,7 @@ const GenreEditForm = () => {
             navigate("/genres");
         } catch (err) {
             console.error("Error editing genre", err);
+            dispatch(setSpinner(false));
             notification.error({
                 message: "Error editing genre",
                 description: "Something went wrong",
@@ -86,6 +89,10 @@ const GenreEditForm = () => {
         setImageFile(file);
         return false;
     };
+
+    useEffect(() => {
+        dispatch(setSpinner(isGenreUpdating));
+    }, [isGenreUpdating, dispatch]);
 
     return (
         <div style={{maxWidth: '600px', margin: '0 auto'}}>
@@ -168,4 +175,4 @@ const GenreEditForm = () => {
     )
 }
 
-export default GenreEditForm;
+export default GenresEditForm;

@@ -12,8 +12,11 @@ import { Spin } from 'antd';
 import { useAppSelector } from './redux/hooks.ts';
 import {selectSpinner} from "./redux/spinner/spinnerSlice.ts";
 import { LoadingOutlined } from '@ant-design/icons';
-import GenreCreateForm from "./components/common/genres/genres_create_form.tsx";
-import GenreEditForm from "./components/common/genres/genres_edit_form.tsx";
+import GenresCreateForm from "./components/common/genres/genres_create_form.tsx";
+import GenresEditForm from "./components/common/genres/genres_edit_form.tsx";
+import GamesListPage from "./pages/common/games/games_list_page.tsx";
+import GamesCreateForm from "./components/common/games/games_create_form.tsx";
+import GamesEditForm from "./components/common/games/games_edit_form.tsx";
 
 function App() {
     const spinner = useAppSelector(selectSpinner);
@@ -42,9 +45,14 @@ function App() {
                         <Route index element={<HomePage/>}/>
                         <Route path="about" element={<AboutPage/>}/>
                         <Route path="genres">
-                            <Route index element={<GenresListPage/>} />
-                            <Route path="create" element={<GenreCreateForm />} />
-                            <Route path="edit/:id" element={<GenreEditForm />} />
+                            <Route index element={<GenresListPage />} />
+                            <Route path="create" element={<GenresCreateForm />} />
+                            <Route path="edit/:id" element={<GenresEditForm />} />
+                        </Route>
+                        <Route path="games">
+                            <Route index element={<GamesListPage />} />
+                            <Route path="create" element={<GamesCreateForm />} />
+                            <Route path="edit/:id" element={<GamesEditForm />} />
                         </Route>
                         <Route path="contact" element={<ContactPage/>}/>
                         <Route path="register" element={<RegisterPage/>}/>
