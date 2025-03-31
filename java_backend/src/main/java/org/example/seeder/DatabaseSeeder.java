@@ -26,22 +26,15 @@ public class DatabaseSeeder {
     private final IGameImageRepository gameImageRepository;
     private final FileService fileService;
 
+    private final RoleSeeder roleSeeder;
+    private final UserSeeder userSeeder;
+
     @PostConstruct
     public void seed() {
-        seedUsers();
+        roleSeeder.seedRoles();
+        userSeeder.seedUsers();
         seedGenres();
         seedGames();
-    }
-
-    private void seedUsers() {
-        if (userRepository.count() == 0) {
-            List<User> users = List.of(
-                    createUser("admin", "admin@abc.com", "passwordadmin"),
-                    createUser("user", "user@abc.com", "passworduser"),
-                    createUser("user2", "user2@abc.com", "passworduser2")
-            );
-            userRepository.saveAll(users);
-        }
     }
 
     private void seedGenres() {
@@ -103,14 +96,6 @@ public class DatabaseSeeder {
         image.setPriority(1);
         image.setGame(game);
         return image;
-    }
-
-    private User createUser(String username, String email, String password) {
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPassword_hash(password);
-        return user;
     }
 
     private Genre createGenre(String name, String imageUrl, String description) {

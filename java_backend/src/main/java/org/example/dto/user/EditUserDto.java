@@ -6,6 +6,5 @@ import lombok.Data;
 public class EditUserDto {
     private int id;
     private String username;
-    private String email;
-    private String password_hash;
+    private String password;
 }

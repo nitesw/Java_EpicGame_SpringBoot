@@ -2,8 +2,12 @@ package org.example.service;
 
 import org.example.dto.user.CreateUserDto;
 import org.example.dto.user.EditUserDto;
+import org.example.entities.Role;
 import org.example.entities.User;
+import org.example.entities.UserRole;
+import org.example.repository.IRoleRepository;
 import org.example.repository.IUserRepository;
+import org.example.repository.IUserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +18,8 @@ import java.util.List;
 public class UserService {
     @Autowired
     private IUserRepository repository;
+    private IRoleRepository roleRepository;
+    private IUserRoleRepository userRoleRepository;
 
     public List<User> getList() {
         return repository.findAll();
@@ -25,11 +31,14 @@ public class UserService {
 
     public User create(CreateUserDto userDto) {
         User entity = new User();
-        entity.setCreated_at(LocalDate.now());
         entity.setUsername(userDto.getUsername());
-        entity.setEmail(userDto.getEmail());
-        entity.setPassword_hash(userDto.getPassword_hash());
-        repository.save(entity);
+        entity.setPassword(userDto.getPassword());
+
+        entity = repository.save(entity);
+
+        Role role = roleRepository.findByName("USER").orElseThrow();
+        UserRole userRole = new UserRole(null, entity, role);
+        userRoleRepository.save(userRole);
         return entity;
     }
 
@@ -39,11 +48,11 @@ public class UserService {
         if (userDto.getUsername() != null && !userDto.getUsername().isBlank()) {
             entity.setUsername(userDto.getUsername());
         }
-        if (userDto.getEmail() != null && !userDto.getEmail().isBlank()) {
-            entity.setEmail(userDto.getEmail());
+        if (userDto.getUsername() != null && !userDto.getUsername().isBlank()) {
+            entity.setUsername(userDto.getUsername());
         }
-        if (userDto.getPassword_hash() != null && !userDto.getPassword_hash().isBlank()) {
-            entity.setPassword_hash(userDto.getPassword_hash());
+        if (userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
+            entity.setPassword(userDto.getPassword());
         }
         return repository.save(entity);
     }

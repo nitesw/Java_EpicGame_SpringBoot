@@ -1,13 +1,18 @@
 package org.example.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Entity
 @Table(name="tbl_users")
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,12 +21,9 @@ public class User {
     @Column(length = 50, nullable = false)
     private String username;
 
-    @Column(length = 100, unique = true, nullable = false)
-    private String email;
-
-    @Column(columnDefinition = "TEXT", nullable = false)
-    private String password_hash;
-
     @Column(nullable = false)
-    private LocalDate created_at = LocalDate.now();
+    private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserRole> userRoles;
 }
