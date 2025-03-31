@@ -1,0 +1,18 @@
+#build the docker image
+docker build -t [img_name] .
+
+#runs the image in the container locally
+docker run -it --rm -p 5068:8084 --name [container_name] [img_name]
+
+#posts the image to the docker hub
+docker tag [img_name]:latest [username]/[img_name]:latest (only the first time defining the img)
+docker push [username]/[img_name]:latest
+
+#shows running containers
+docker ps -a
+
+#renew container on server side
+docker stop [container_name]
+docker rm [container_name]
+docker pull [username]/[img_name]:latest
+docker run --name [container_name] --restart=always -p 4082:8084 -d [username]/[img_name]:latest
