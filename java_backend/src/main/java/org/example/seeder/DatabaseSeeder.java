@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.entities.Game;
 import org.example.entities.GameImage;
 import org.example.entities.Genre;
-import org.example.entities.User;
 import org.example.repository.IGameImageRepository;
 import org.example.repository.IGameRepository;
 import org.example.repository.IGenreRepository;

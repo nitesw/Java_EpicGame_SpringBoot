@@ -1,8 +1,8 @@
 package org.example.controller;
 
-import org.example.dto.user.CreateUserDto;
 import org.example.dto.user.EditUserDto;
-import org.example.entities.User;
+import org.example.dto.user.UserDto;
+import org.example.entities.UserEntity;
 import org.example.repository.IUserRepository;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,31 +21,26 @@ public class UserController {
     private UserService service;
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserDto> getAllUsers() {
         return service.getList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable int id) {
-        User user = service.getById(id);
+    public ResponseEntity<UserDto> getUserById(@PathVariable int id) {
+        UserDto user = service.getById(id);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         return ResponseEntity.ok(user);
     }
 
-    @PostMapping
-    public User createUser(CreateUserDto user) {
-        return service.create(user);
-    }
-
     @PutMapping
-    public User updateUser(EditUserDto updatedUser) {
+    public UserEntity updateUser(EditUserDto updatedUser) {
         return service.edit(updatedUser);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(int id){
+    public void deleteUser(@PathVariable int id){
         service.delete(id);
     }
 }

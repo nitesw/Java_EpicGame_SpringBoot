@@ -1,49 +1,41 @@
 package org.example.service;
 
-import org.example.dto.user.CreateUserDto;
+import lombok.RequiredArgsConstructor;
+import org.example.config.security.JwtService;
 import org.example.dto.user.EditUserDto;
-import org.example.entities.Role;
-import org.example.entities.User;
-import org.example.entities.UserRole;
+import org.example.dto.user.UserAuthDto;
+import org.example.dto.user.UserDto;
+import org.example.dto.user.UserRegisterDto;
+import org.example.entities.UserEntity;
+import org.example.mapper.IUserMapper;
 import org.example.repository.IRoleRepository;
 import org.example.repository.IUserRepository;
 import org.example.repository.IUserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    @Autowired
-    private IUserRepository repository;
-    private IRoleRepository roleRepository;
-    private IUserRoleRepository userRoleRepository;
+    private final IUserRepository repository;
+    private final IUserMapper mapper;
+    private final IRoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public List<User> getList() {
-        return repository.findAll();
+    public List<UserDto> getList() {
+        return mapper.toDto(repository.findAll());
     }
 
-    public User getById(int id) {
-        return repository.findById(id).orElse(null);
+    public UserDto getById(int id) {
+        return mapper.toDto(repository.findById(id).orElse(null));
     }
 
-    public User create(CreateUserDto userDto) {
-        User entity = new User();
-        entity.setUsername(userDto.getUsername());
-        entity.setPassword(userDto.getPassword());
-
-        entity = repository.save(entity);
-
-        Role role = roleRepository.findByName("USER").orElseThrow();
-        UserRole userRole = new UserRole(null, entity, role);
-        userRoleRepository.save(userRole);
-        return entity;
-    }
-
-    public User edit(EditUserDto userDto) {
-        User entity = repository.findById(userDto.getId())
+    public UserEntity edit(EditUserDto userDto) {
+        UserEntity entity = repository.findById(userDto.getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         if (userDto.getUsername() != null && !userDto.getUsername().isBlank()) {
             entity.setUsername(userDto.getUsername());
@@ -59,5 +51,29 @@ public class UserService {
 
     public void delete(int id) {
         repository.deleteById(id);
+    }
+
+    public void register(UserRegisterDto userDto){
+        if (repository.existsByUsername(userDto.getUsername())){
+            throw new RuntimeException("User with the same username is already exists!");
+        }
+
+        var user = new UserEntity();
+
+        user.setUsername(userDto.getUsername());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        repository.save(user);
+    }
+
+    public String authenticate(UserAuthDto userAuthDto) {
+        UserEntity user = repository
+                .findByUsername(userAuthDto.getUsername())
+                .orElseThrow(() -> new RuntimeException("User is not found!"));
+
+        if (!passwordEncoder.matches(userAuthDto.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Wrong password!");
+        }
+
+        return jwtService.generateAccessToken(user);
     }
 }

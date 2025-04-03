@@ -2,7 +2,7 @@ package org.example.seeder;
 
 import lombok.RequiredArgsConstructor;
 import org.example.entities.Role;
-import org.example.entities.User;
+import org.example.entities.UserEntity;
 import org.example.entities.UserRole;
 import org.example.repository.IRoleRepository;
 import org.example.repository.IUserRepository;
@@ -20,7 +20,7 @@ public class UserSeeder {
 
     public void seedUsers() {
         if(userRepository.count() == 0) {
-            User admin = new User();
+            UserEntity admin = new UserEntity();
             admin.setUsername("admin");
             admin.setPassword(passwordEncoder.encode("admin123"));
 
