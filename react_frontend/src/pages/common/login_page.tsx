@@ -1,7 +1,9 @@
+import UserLoginForm from "../../components/common/user/user_login_form.tsx";
+
 const LoginPage = () => {
     return (
         <>
-            <div>Welcome to Login Page!</div>
+            <UserLoginForm />
         </>
     )
 }

@@ -1,7 +1,9 @@
+import UserRegisterForm from "../../components/common/user/user_register_form.tsx";
+
 const RegisterPage = () => {
     return (
         <>
-            <div>Welcome to Register Page!</div>
+            <UserRegisterForm />
         </>
     )
 }

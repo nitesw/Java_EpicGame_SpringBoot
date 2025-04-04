@@ -1,5 +1,7 @@
 package org.example.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.config.security.JwtService;
 import org.example.dto.user.EditUserDto;
@@ -12,10 +14,19 @@ import org.example.repository.IRoleRepository;
 import org.example.repository.IUserRepository;
 import org.example.repository.IUserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +36,9 @@ public class UserService {
     private final IRoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+
+    @Value("${google.api.userinfo}")
+    private String googleUserInfoUrl;
 
     public List<UserDto> getList() {
         return mapper.toDto(repository.findAll());
@@ -75,5 +89,27 @@ public class UserService {
         }
 
         return jwtService.generateAccessToken(user);
+    }
+
+    public String singInGoogle(String access_token) throws IOException {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + access_token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(googleUserInfoUrl, HttpMethod.GET, entity, String.class);
+        if(response.getStatusCode().is2xxSuccessful()) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, String> userInfo = objectMapper.readValue(response.getBody(), new TypeReference<Map<String, String>>() {});
+            var userEntity = repository.findByUsername(userInfo.get("username")).orElse(null);
+            if(userEntity == null) {
+                userEntity = new UserEntity();
+                userEntity.setUsername(userInfo.get("username"));
+                userEntity.setPassword("");
+                repository.save(userEntity);
+            }
+            var jwt = jwtService.generateAccessToken(userEntity);
+            return jwt;
+        }
+        return null;
     }
 }
